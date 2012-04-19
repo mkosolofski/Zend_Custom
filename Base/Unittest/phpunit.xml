@@ -1,0 +1,9 @@
+<phpunit bootstrap="Bootstrap.php" colors="true">
+    <testsuite name="AllTestSuite">
+        <directory>application/</directory>
+        <directory>library/</directory>
+    </testsuite>
+    <logging>
+    </logging>
+</phpunit>
+
