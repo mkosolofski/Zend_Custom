@@ -7,12 +7,17 @@
  */
 
 /**
+ * Define the namespace. 
+ */
+namespace Extended\Service;
+
+/**
  * Contains methods for accessing the api of http://www.rottentomatoes.com
  * 
  * @package Extended
  * @subpackage Service
  */
-class Extended_Service_RottenTomatoes
+class RottenTomatoes extends \Zend_Service_Abstract
 {
     /**
      * The Rotten Tomatoes api version. 
@@ -38,10 +43,8 @@ class Extended_Service_RottenTomatoes
      */
     public function __construct($apiKey)
     {
-        if (!is_string($apiKey)
-            || trim($apiKey) == ''
-        ) {
-            throw new Extended_Service_Exception('Invalid $apiKey parameter. Expected non-empty string');
+        if (!is_string($apiKey) || trim($apiKey) == '') {
+            throw new Exception('Invalid $apiKey parameter. Expected non-empty string');
         }
 
         $this->_apiKey = $apiKey;
@@ -93,8 +96,9 @@ class Extended_Service_RottenTomatoes
      */
     protected function _request($namespace, $params = array())
     {
-        $clientObj = new Zend_Http_Client(self::URI . '/' . self::VERSION . '/' . $namespace);
-        $clientObj->setParameterGet('apikey', $this->_apiKey);
+        $clientObj = $this->getHttpClient()
+            ->setUri(self::URI . '/' . self::VERSION . '/' . $namespace)
+            ->setParameterGet('apikey', $this->_apiKey);
 
         foreach ($params as $key => $value) {
             $clientObj->setParameterGet($key, $value);
