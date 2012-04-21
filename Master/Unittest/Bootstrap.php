@@ -38,7 +38,6 @@ $dbAdapter = Zend_Db::factory(
 $registry = Zend_Registry::getInstance();
 $registry->application = $application;
 $registry->config = $application->getOptions();
-$registry->logger = new Website_Logger();
 $registry->db = $dbAdapter;
 
 Zend_Loader_Autoloader::getInstance()
