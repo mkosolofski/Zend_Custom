@@ -1,0 +1,15 @@
+Branch Info:
+
+-- master --
+A base copy of the framework that will allow you to start working on a project right away. Contains the following:
+* library/Extended directory to add libraries that extend the ZF libraries or are generic enough to be used by any website.
+* application/service directory for service objects. Contains repsonse object that can be used with services.
+* library/Extended/View/Helper directory for custom view helper files.
+* Bootstrapping in place for additional directories.
+
+-- master -> ajax --
+Contains ajax related code to help automate the handling of ajax requests. My end goal is to simulate rails behaviour as closely as possible. This is an ongoing project. How to use:
+
+All ajax requests are made through the AjaxController object with the parameters 'sub' and 'script'. These parameters dictate the renderring of a view script found in application/views/ajax/SUB/SCRIPT. The associated view script then has access to all framework functionality to build a 'response'. The 'response' will be what the view script displays. In my projects, I build a response of javascript, and evaluate the javascript on the client side using eval().
+
+
