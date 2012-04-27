@@ -16,7 +16,6 @@ class Unittest_All
         $suite = new PHPUnit_Framework_TestSuite();
         $suite->addTest(Unittest_Controller_All::suite());
         $suite->addTest(Unittest_Extended_All::suite());
-        $suite->addTest(Unittest_Model_All::suite());
         $suite->addTest(Unittest_Website_All::suite());
         return $suite;
     }
