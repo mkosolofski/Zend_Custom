@@ -12,4 +12,16 @@ Contains ajax related code to help automate the handling of ajax requests. My en
 
 All ajax requests are made through the AjaxController object with the parameters 'sub' and 'script'. These parameters dictate the renderring of a view script found in application/views/ajax/SUB/SCRIPT. The associated view script then has access to all framework functionality to build a 'response'. The 'response' will be what the view script displays. In my projects, I build a response of javascript, and evaluate the javascript on the client side using eval().
 
+-- master -> service_RottenTomatoes
+A base object for communicating to the Rotten Tomatoes api with. This object is not complete with all Rotten Tomatoes api calls but is enough to get you started.
 
+-- master -> model_mapper
+This is one of my base concepts for handling models and interfacing to a database layer as inspired by Zend documentation at: http://framework.zend.com/manual/en/learning.quickstart.create-model.html
+
+Extended_Model_Abstract - Offers base CRUD functionality for dealing with a model.
+Extended_Model_Mapper_Abstract - Interfaces with a mysql data layer for saving and populating a model.
+
+What Next:
+- Abstract out data layer to be anything.
+- Introduce runtime caching
+- Introduce memcache layer
