@@ -12,7 +12,7 @@
 namespace Extended\Service;
 
 /**
- * Contains methods for scraping http://www.houseseats.com
+ * Contains methods for scraping http://www.houseseats.com on ACTIVE shows.
  * 
  * @package Extends
  * @subPackage Service
@@ -54,51 +54,108 @@ class HouseSeats extends \Zend_Service_Abstract
         $this->_email = $email;
         $this->_password = $password;
     }
+    
+    /**
+     * Returns a numerical array of active shows.
+     * 
+     * @throws Extended_Service_Exception Invalid method parameter or show names not found.
+     * @return array The list of active shows.
+     */
+    public function getShowNames()
+    {
+        preg_match_all(
+            '/<td><a href=".*">(.*)<\/a.*/',
+            $this->_getPage(self::PAGE_ACTIVE_SHOWS),
+            $names
+        );
+
+        if (!isset($names)) {
+            throw new Exception('Failed to get show names.');
+        }
+        return $names[1];
+    }
+
+    /**
+     * Returns the details of an active show.
+     * 
+     * @param string $showName The name of the show to return the details of.
+     * @throws Extended_Service_Exception Invalid method parameter or show details not found.
+     * @return string The show details.
+     */
+    public function getShowDetails($showName)
+    {
+        if (!is_string($showName) || empty($showName)) {
+            throw new Exception('Invalid $showName parameter. Expected a non-empty string');
+        }
+        
+        preg_match(
+            '/<td><a href="\.(.*)">' . preg_quote($showName) . '<\/a.*/',
+            $this->_getPage(self::PAGE_ACTIVE_SHOWS),
+            $detailsLink
+        );
+        if (!isset($detailsLink)) {
+            throw new Exception('Failed to get show details [1].');
+        }
+
+        preg_match(
+            '/show description([\s\S]*)rsvp for a show/',
+            strip_tags($this->_getPage(self::PAGE_ACTIVE_SHOWS . $detailsLink[1])),
+            $details
+        );
+        
+        if (!isset($details)) {
+            throw new Exception('Failed to get show details [2].');
+        }
+        return trim($details[1]);
+    }
+
+    /**
+     * Returns the image link of an active show.
+     * 
+     * @param string $showName The name of the show to return the image link of.
+     * @throws Extended_Service_Exception Image link not found.
+     * @return string The show image link.
+     */
+    public function getShowImageLink($showName)
+    {
+        return $this->_getUri('/resources/media/' . $this->getShowId($showName) . '_thumb.jpg');
+    }
+
+    /**
+     * Retrurns the id of an active show.
+     * 
+     * @param string $showName The name of the show to return the image link of.
+     * @throws Extended_Service_Exception Show id not found.
+     * @return int The show id.
+     */
+    public function getShowId($showName)
+    {
+        preg_match(
+            '/(\d*)">' .  preg_quote($showName) . '/',
+            $this->_getPage(self::PAGE_ACTIVE_SHOWS),
+            $showId
+        );
+
+        if (!isset($showId)) {
+            throw new Exception('Show id not found.');
+        }
+        return $showId[1];
+    }
 
     /**
      * Returns the last update time of the show list as presented by the site.
      * 
+     * @throws Extended_Service_Exception Failed to get last update time.
      * @return string The last update time.
      */
     public function getLastUpdateTime()
     {
         preg_match('/' . "\t\t\t" . ' as of (.*)/', $this->_getPage(self::PAGE_ACTIVE_SHOWS), $matches);
-        return $matches[1];
-    }
 
-    /**
-     * Returns the active show list on the site.
-     *
-     * Example return:
-     * <pre>
-     *     array(
-     *         array(
-     *             'name' => the name of the show
-     *             'imageLink' => the full url to the show image
-     *             'descLink' => the full url to the show description page
-     *         )
-     *     )
-     * </pre>
-     * 
-     * @return array The active show list.
-     */
-    public function getShows()
-    {
-        $response = $this->_getPage(self::PAGE_ACTIVE_SHOWS);
-
-        preg_match_all('/<td><a href="(.*)">(.*)<\/a.*/', $response, $shows);
-        preg_match_all('/<td valign="top"><a href=".*"><img src="(.*)" width="100"/', $response, $showPics);
-        
-        $result = array();
-        for($index = 0; $index < count($shows[0]); $index ++) {
-            $result[] = array(
-                'name' => $shows[2][$index],
-                'imageLink' =>  self::URL . $showPics[1][$index],
-                'descLink' => self::URL . $shows[1][$index]
-            );
+        if (!isset($matches)) {
+            throw new Exception('Failed to get last update time.');
         }
-
-        return $result;
+        return $matches[1];
     }
 
     /**
@@ -221,8 +278,12 @@ class HouseSeats extends \Zend_Service_Abstract
                 $response = $client->setParameterPost($name, $value);
             }
         }
-        
-        $response = $client->request();
+
+        try {
+            $response = $client->request();
+        } catch (Zend_Http_Client_Exception $e) {
+            throw new Exception($e->getMessage());
+        }
 
         if ($response->isError()) {
             throw new Exception($response->getMessage());
