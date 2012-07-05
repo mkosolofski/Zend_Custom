@@ -27,12 +27,12 @@ class HouseSeats extends \Zend_Service_Abstract
     /**
      * The site path to the login page.
      */
-    const LOGIN_PATH = '/member/index.bv';
+    const PAGE_LOGIN = '/member/index.bv';
 
     /**
      * The site path to the show listing page.
      */
-    const LISTING_PATH = '/member/tickets/';
+    const PAGE_ACTIVE_SHOWS = '/member/tickets/';
 
     /**
      * Instantiate the object with log in credentials.
@@ -62,7 +62,7 @@ class HouseSeats extends \Zend_Service_Abstract
      */
     public function getLastUpdateTime()
     {
-        preg_match('/' . "\t\t\t" . ' as of (.*)/', $this->_getSummaryPage(), $matches);
+        preg_match('/' . "\t\t\t" . ' as of (.*)/', $this->_getPage(self::PAGE_ACTIVE_SHOWS), $matches);
         return $matches[1];
     }
 
@@ -84,7 +84,7 @@ class HouseSeats extends \Zend_Service_Abstract
      */
     public function getShows()
     {
-        $response = $this->_getSummaryPage();
+        $response = $this->_getPage(self::PAGE_ACTIVE_SHOWS);
 
         preg_match_all('/<td><a href="(.*)">(.*)<\/a.*/', $response, $shows);
         preg_match_all('/<td valign="top"><a href=".*"><img src="(.*)" width="100"/', $response, $showPics);
@@ -152,21 +152,22 @@ class HouseSeats extends \Zend_Service_Abstract
     protected $_loggedIn = false;
 
     /**
-     * Returns the site response when viewing page of active shows.
+     * Returns the site response when viewing a page.
      * 
-     * @return string
+     * @param string $page The page path to get.
+     * @return string The page body.
      */
-    protected function _getSummaryPage()
+    protected function _getPage($page)
     {
-        if (!array_key_exists('summary', $this->_pageCache)) {
+        if (!array_key_exists($page, $this->_pageCache)) {
             $this->_login();
             
-            $this->_pageCache['summary'] = $this->_request( 
-                $this->_getUri(self::LISTING_PATH)
+            $this->_pageCache[$page] = $this->_request( 
+                $this->_getUri($page)
             );
         }
 
-        return $this->_pageCache['summary'];
+        return $this->_pageCache[$page];
     }
 
     /**
@@ -179,7 +180,7 @@ class HouseSeats extends \Zend_Service_Abstract
         }
 
         $this->_request(
-            $this->_getUri(self::LOGIN_PATH),
+            $this->_getUri(self::PAGE_LOGIN),
             array(
                'submit' => 'login',
                'email' => $this->_email,
@@ -199,7 +200,7 @@ class HouseSeats extends \Zend_Service_Abstract
      * 
      * @param array $options An array of curl options. 
      * @throws Extended_Service_Exception Request failed.
-     * @return string The request response. 
+     * @return string The response body. 
      */
     protected function _request($uri, $post = array())
     {
