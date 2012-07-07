@@ -122,7 +122,7 @@ if ($emailNewShows != '') {
     $mailer = new Zend_Mail();
     $mailer->setFrom($hotmailUsername, 'Cron - House Seats!')
         ->setBodyHtml(
-            '<a href="http://lv.houseseats.com">http://lv.houseseats.com</a>' .
+            '<a href="http://www.houseseats.com">http://lv.houseseats.com</a>' .
             '<div style="padding-top:25px;font-weight:bold;color:blue;">NEW SHOWS</div>' .
             '<dl>' . $emailNewShows . '</dl>' .
             '<div style="padding-top:25px;font-weight:bold;color:blue;">OLD ACTIVE SHOWS</div>' .
