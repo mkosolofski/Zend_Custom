@@ -91,6 +91,11 @@ foreach ($newShows as $showName) {
 // Build email and table insert for old shows.
 $emailOldShows = '';
 foreach ($knownShows as $showName) {
+    // Don't include removed shows.
+    if (!in_array($showName, $siteShows)) {
+        continue;
+    }
+
     $insert[] = '(' . $dbAdapter->quote($showName) . ')';
     $showDetails = $houseSeats->getShowDetails($showName);
     $emailOldShows .= '<dt style="font-weight:bold;">' .
@@ -105,10 +110,6 @@ foreach ($knownShows as $showName) {
 
 // If there are new shows, send an email out.
 if ($emailNewShows != '') {
-    $dbAdapter->query('TRUNCATE ' . $databaseTable);
-    $dbAdapter->query('INSERT INTO ' . $databaseTable .
-        ' (' . $databaseTableFieldName . ') VALUE ' . implode(',', $insert));
-    
     Zend_Mail::setDefaultTransport(
         new Zend_Mail_Transport_Smtp('smtp.live.com',
             array('auth' => 'login',
@@ -138,4 +139,11 @@ if ($emailNewShows != '') {
     }
  
     $mailer->send();
+}
+
+// Update the database table with the latest show listing.
+if (!empty($insert)) {
+    $dbAdapter->query('TRUNCATE ' . $databaseTable);
+    $dbAdapter->query('INSERT INTO ' . $databaseTable .
+        ' (' . $databaseTableFieldName . ') VALUE ' . implode(',', $insert));
 }
