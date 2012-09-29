@@ -31,7 +31,7 @@ class AjaxController extends Zend_Controller_Action
 
         $params = $request->getParam('params');
         if (!empty($params)) {
-            $this->view->params = json_decode($params, true);
+            $this->view->params = $params;
         }
 
         try {
