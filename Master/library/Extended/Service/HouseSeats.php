@@ -89,7 +89,7 @@ class HouseSeats extends \Zend_Service_Abstract
         }
         
         preg_match(
-            '/<td><a href="\.(.*)">' . preg_quote($showName) . '<\/a.*/',
+            '/<td><a href="\.(.*)">' . preg_quote($showName, '/') . '<\/a.*/',
             $this->_getPage(self::PAGE_ACTIVE_SHOWS),
             $detailsLink
         );
@@ -131,7 +131,7 @@ class HouseSeats extends \Zend_Service_Abstract
     public function getShowId($showName)
     {
         preg_match(
-            '/(\d*)">' .  preg_quote($showName) . '/',
+            '/(\d*)">' .  preg_quote($showName, '/') . '/',
             $this->_getPage(self::PAGE_ACTIVE_SHOWS),
             $showId
         );
